@@ -2,7 +2,7 @@ import os
 import secrets
 import requests
 
-from fastapi import Depends, FastAPI, HTTPException, Request, status
+from fastapi import Depends, FastAPI, HTTPException, Request, status, Request
 from fastapi.responses import HTMLResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.templating import Jinja2Templates
@@ -19,12 +19,11 @@ def read_root():
     return {"Hello": "World"}
 
 @app.post("/message")
-def receive_message(message: Message):
+def receive_message(request: Request):
     # Parse the message text
-    parsed_text = parse_message(message.text)
-    
+    data = request.json()
     # Send a reply
-    send_message(parsed_text)
+    send_message(data["text"])
 
 def parse_message(text):
     # Parse the message text here
