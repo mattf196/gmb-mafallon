@@ -28,7 +28,7 @@ def receive_message(message: Message):
 
 def parse_message(text):
     # Parse the message text here
-    return text
+    return text + "hi"
 
 def send_message(text):
     # Set the API access token and group ID
