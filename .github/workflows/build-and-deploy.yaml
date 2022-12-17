@@ -50,14 +50,14 @@ jobs:
         with:
           context: "{{defaultContext}}:cronjob"
           push: ${{ github.ref == 'refs/heads/master' }}
-          tags: ghcr.io/cis188/hw4-mafallon/unit4-cronjob:${{ github.sha }}
+          tags: ghcr.io/mattf196/gmb-mafallon/unit4-cronjob:${{ github.sha }}
 
       - name: Build and push fastapi image
         uses: docker/build-push-action@v3
         with:
           context: "{{defaultContext}}:web"
           push: ${{ github.ref == 'refs/heads/master' }}
-          tags: ghcr.io/cis188/hw4-mafallon/unit4-fastapi:${{ github.sha }}
+          tags: ghcr.io/mattf196/gmb-mafallon/unit4-fastapi:${{ github.sha }}
 
 
 

@@ -5,10 +5,10 @@ application:
     secretName: mafallon-cis188-org-tls
 
 cronjob:
-  image: ghcr.io/cis188/hw4-mafallon/unit4-cronjob
+  image: ghcr.io/mattf196/gmb-mafallon/unit4-cronjob
 
 web:
-  image: ghcr.io/cis188/hw4-mafallon/unit4-fastapi
+  image: ghcr.io/mattf196/gmb-mafallon/unit4-fastapi
 
 
 groupme:
