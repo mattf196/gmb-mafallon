@@ -1,5 +1,6 @@
 import os
 import secrets
+import requests
 
 from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.responses import HTMLResponse
@@ -9,6 +10,50 @@ from pydantic import BaseModel
 from redis import Redis
 
 app = FastAPI()
+
+class Message(BaseModel):
+    text: str
+
+@app.get("/")
+def read_root():
+    return {"Hello": "World"}
+
+@app.post("/message")
+def receive_message(message: Message):
+    # Parse the message text
+    parsed_text = parse_message(message.text)
+    
+    # Send a reply
+    send_message(parsed_text)
+
+def parse_message(text):
+    # Parse the message text here
+    return text
+
+def send_message(text):
+    # Set the API access token and group ID
+    api_key = "{{ groupme.access_token }}"
+    group_id = "{{ groupme.group_id }}"
+    
+    # Send the message to the group
+    data = {
+        "message": {
+            "source_guid": "95be04807de7dc001351743dde",
+            "text": text
+        }
+    }
+    headers = {
+        "Authorization": f"Bearer {{ groupme.access_token }}"
+    }
+    response = requests.post(f"https://api.groupme.com/v3/groups/{group_id}/messages", json=data, headers=headers)
+    
+    # Check for errors
+    if response.status_code != 201:
+        raise HTTPException(status_code=response.status_code, detail=response.text)
+
+
+
+"""""
 conn = Redis.from_url(os.getenv("REDIS_URL", "redis://redis/0"))
 templates = Jinja2Templates(directory="/templates")
 
@@ -70,4 +115,4 @@ def get_info(request: Request, username: str = Depends(get_admin_username)):
     return templates.TemplateResponse(
         "info.html.j2", {"request": request, "benders": bender_dict}
     )
-
+"""

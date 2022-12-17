@@ -9,3 +9,13 @@ cronjob:
 
 web:
   image: ghcr.io/cis188/hw4-mafallon/unit4-fastapi
+
+
+groupme:
+    group_id: "91035437"
+    access_token: "nEjqLVbP88k9IwvK2toS76rmkRDk3swrbSMhVopK"
+    glm:
+      limit: "1"
+    bot:
+      name: "testbot"
+      

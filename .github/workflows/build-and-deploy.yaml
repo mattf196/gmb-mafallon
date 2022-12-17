@@ -1,0 +1,87 @@
+name: Other Name
+
+# Run this workflow every time a new commit pushed to your repository
+on: push
+
+jobs:
+  # Set the job key. The key is displayed as the job name
+  # when a job name is not provided
+  test:
+    # Name the Job
+    name: Test application
+    # Set the type of machine to run on
+    runs-on: ubuntu-20.04
+    steps:
+      # Checks out a copy of your repository on the ubuntu-latest machine
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # TODO: install poetry and test code
+
+      - name: install poetry
+        run: pip3 install poetry
+
+      - name: install web dependencies
+        run:  |
+            cd web
+            poetry install 
+        
+
+  build:
+    
+    # Name the Job
+    name: Build and publish docker image
+    needs: test
+    # Set the type of machine to run on
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+          # TODO: build and publish docker images
+      - name: Login to ghcr.io
+        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build and push cronjob image
+        uses: docker/build-push-action@v3
+        with:
+          context: "{{defaultContext}}:cronjob"
+          push: ${{ github.ref == 'refs/heads/master' }}
+          tags: ghcr.io/cis188/hw4-mafallon/unit4-cronjob:${{ github.sha }}
+
+      - name: Build and push fastapi image
+        uses: docker/build-push-action@v3
+        with:
+          context: "{{defaultContext}}:web"
+          push: ${{ github.ref == 'refs/heads/master' }}
+          tags: ghcr.io/cis188/hw4-mafallon/unit4-fastapi:${{ github.sha }}
+
+
+
+  deploy:
+    name: Deploy latest version of code
+    if: github.ref == 'refs/heads/master'
+    needs: build
+
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # TODO: deploy to AWS
+      - name: Login to AWS
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Get kubeconfig from AWS
+        run: aws eks --region us-east-1 update-kubeconfig --name cis188 --role-arn arn:aws:iam::751852120204:role/mafallon --alias cis188
+
+      - name: Install chart
+        run: helm upgrade --install -f installation-values.yaml --repo https://helm.cis188.org aang bender-catalog  --set image.cronjob.tag=${{ github.sha }},image.fastapi.tag=${{ github.sha }} --namespace mafallon
