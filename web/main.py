@@ -22,8 +22,11 @@ def read_root():
 def receive_message(request: Request):
     # Parse the message text
     data = request.json()
+    print(data)
     # Send a reply
     send_message(data["text"])
+
+    return {"status" : "success"}
 
 def parse_message(text):
     # Parse the message text here
