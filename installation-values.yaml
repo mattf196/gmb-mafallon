@@ -1,0 +1,11 @@
+application:
+  ingress:
+    host: mafallon.cis188.org
+    path: "/"
+    secretName: mafallon-cis188-org-tls
+
+cronjob:
+  image: ghcr.io/cis188/hw4-mafallon/unit4-cronjob
+
+web:
+  image: ghcr.io/cis188/hw4-mafallon/unit4-fastapi
